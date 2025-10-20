@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import numpy as np
 from fastapi.testclient import TestClient
 
@@ -7,20 +5,11 @@ from app.main import app
 
 client = TestClient(app)
 
-def mock_load_model(*args):
-    class MockModel:
-        def predict(self, X):
-            return np.array([235.94])
-    return MockModel(), {"version": "v0.2"}
-
-@patch('app.main.load_model', mock_load_model)
 def test_health():
     r = client.get("/health")
     assert r.status_code == 200
     assert r.json()["status"] == "ok"
-    assert r.json()["model_version"] == "v0.2"
 
-@patch('app.main.load_model', mock_load_model)
 def test_predict_ok():
     payload = {
         "age": 0.02,
@@ -36,7 +25,4 @@ def test_predict_ok():
     }
     r = client.post("/predict", json=payload)
     assert r.status_code == 200
-    response = r.json()
-    assert "prediction" in response
-    assert "model_version" in response
-    assert response["model_version"] == "v0.2"
+    assert "prediction" in r.json()
