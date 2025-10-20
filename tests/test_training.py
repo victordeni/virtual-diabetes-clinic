@@ -1,7 +1,7 @@
 import os
 
-from ml_service.config import Paths, TrainConfig
-from ml_service.train import train_and_eval
+from src.ml_service.config import Paths, TrainConfig
+from src.ml_service.train import train_and_eval
 
 
 def test_training_produces_artifacts(tmp_path):
