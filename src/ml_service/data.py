@@ -1,6 +1,7 @@
 from __future__ import annotations
-from sklearn.datasets import load_diabetes
+
 import pandas as pd
+from sklearn.datasets import load_diabetes
 
 FEATURE_ORDER = ["age","sex","bmi","bp","s1","s2","s3","s4","s5","s6"]
 

@@ -1,16 +1,20 @@
 from __future__ import annotations
+
 import os
-import numpy as np
 from typing import Literal
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LinearRegression, Ridge
+
+import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from .config import TrainConfig, Paths, MODEL_VERSION
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from .config import MODEL_VERSION, Paths, TrainConfig
 from .data import load_dataset
 from .eval import rmse
-from .model_io import save_model, save_metrics, save_schema
+from .model_io import save_metrics, save_model, save_schema
+
 
 def build_pipeline(model_type: Literal["linear","ridge","rf"], cfg: TrainConfig) -> Pipeline:
     if model_type == "linear":
@@ -34,7 +38,9 @@ def build_pipeline(model_type: Literal["linear","ridge","rf"], cfg: TrainConfig)
 def train_and_eval(paths: Paths, cfg: TrainConfig):
     np.random.seed(cfg.random_state)
     X, y = load_dataset()
-    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=cfg.test_size, random_state=cfg.random_state)
+    X_tr, X_te, y_tr, y_te = train_test_split(
+        X, y, test_size=cfg.test_size, random_state=cfg.random_state
+    )
     pipe = build_pipeline(cfg.model_type, cfg)
     pipe.fit(X_tr, y_tr)
     pred_tr = pipe.predict(X_tr)
@@ -48,10 +54,18 @@ def train_and_eval(paths: Paths, cfg: TrainConfig):
         "model_version": MODEL_VERSION,
     }
     os.makedirs(paths.artifacts_dir, exist_ok=True)
-    meta = {"model_version": MODEL_VERSION, "features": X.columns.tolist(), "model_type": cfg.model_type}
+    meta = {
+        "model_version": MODEL_VERSION,
+        "features": X.columns.tolist(),
+        "model_type": cfg.model_type
+    }
     save_model(pipe, meta, paths.model_path)
     save_metrics(metrics, paths.metrics_path)
-    schema = {"type": "object", "required": X.columns.tolist(), "properties": {k: {"type": "number"} for k in X.columns}}
+    schema = {
+        "type": "object",
+        "required": X.columns.tolist(),
+        "properties": {k: {"type": "number"} for k in X.columns}
+    }
     save_schema(schema, paths.schema_path)
     return metrics
 
