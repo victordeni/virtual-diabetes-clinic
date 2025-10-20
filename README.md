@@ -3,7 +3,7 @@ The goal is to predict the short-term progression risk of diabetes, based on bas
 
 The service is built around a regression model (using scikit-learn), exposed through a FastAPI endpoint, and fully automated via GitHub Actions and Docker.
 
-⚙️ontext
+Context
 
 Each week, a virtual clinic receives hundreds of patient check-ins: vitals, lab results, lifestyle notes, etc.
 Manual review is slow and inconsistent.
