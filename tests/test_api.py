@@ -1,6 +1,7 @@
 from unittest.mock import patch
-from fastapi.testclient import TestClient
+
 import numpy as np
+from fastapi.testclient import TestClient
 
 from app.main import app
 
