@@ -3,7 +3,7 @@ The goal is to predict the short-term progression risk of diabetes, based on bas
 
 The service is built around a regression model (using scikit-learn), exposed through a FastAPI endpoint, and fully automated via GitHub Actions and Docker.
 
-Context
+# Context
 
 Each week, a virtual clinic receives hundreds of patient check-ins: vitals, lab results, lifestyle notes, etc.
 Manual review is slow and inconsistent.
@@ -12,7 +12,8 @@ This project automates the process by assigning each patient a continuous risk s
 The model uses the open load_diabetes dataset from scikit-learn as a stand-in for anonymized electronic health records (EHR).
 
 Model & Iterations
-v0.1 — Baseline
+
+# v0.1 — Baseline
 
 Preprocessing: StandardScaler
 
@@ -20,7 +21,7 @@ Model: LinearRegression
 
 RMSE (test): 53.85
 
-v0.2 — Improvement
+# v0.2 — Improvement
 
 Model: Ridge(alpha=1.0)
 
@@ -81,6 +82,7 @@ Then test it:
 curl -s http://localhost:8000/health
 
  With Docker
+ 
 # Baseline version (LinearRegression)
 docker pull ghcr.io/victordeni/virtual-diabetes-clinic:v0.1
 docker run -p 8000:8000 ghcr.io/victordeni/virtual-diabetes-clinic:v0.1
@@ -99,7 +101,7 @@ Release	on tag v*	Full training, build Docker image, smoke-test container, push 
 
 Everything is fully reproducible — same code, same metrics, same Docker image.
 
-🧾 Repository structure
+# Repository structure
 Path	Description
 src/	ML logic: training, model I/O, config, evaluation
 app/	FastAPI application
