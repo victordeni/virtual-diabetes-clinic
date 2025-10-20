@@ -3,9 +3,13 @@ on:
   push:
     branches: [ main ]
   pull_request:
+
 jobs:
   qa-test-train:
     runs-on: ubuntu-latest
+    env:
+      PYTHONHASHSEED: '42'
+      PYTHONPATH: ${{ github.workspace }}/src
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,10 +23,8 @@ jobs:
         run: ruff check .
       - name: Tests
         run: pytest -q --disable-warnings --maxfail=1
-      - name: Train & save artifacts
-        run: python -m src.cli.train_and_eval
-        env:
-          PYTHONHASHSEED: '42'
+      - name: Quick train & save artifacts
+        run: python -m cli.train_and_eval
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:

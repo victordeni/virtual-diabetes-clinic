@@ -1,14 +1,17 @@
 name: Release
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
+    env:
+      PYTHONHASHSEED: '42'
+      PYTHONPATH: ${{ github.workspace }}/src
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,11 +22,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Train (deterministic)
-        env:
-          PYTHONHASHSEED: '42'
         run: |
-          python -m src.cli.train_and_eval
-          echo "Tag: $GITHUB_REF_NAME" || true
+          python -m cli.train_and_eval
+          cat artifacts/metrics.json
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -40,7 +41,9 @@ jobs:
           docker run -d -p 8000:8000 --name svc $IMAGE
           sleep 3
           curl -f http://localhost:8000/health
-          curl -s -X POST http://localhost:8000/predict -H 'Content-Type: application/json' -d @assets/sample_payload.json
+          curl -s -X POST http://localhost:8000/predict \
+            -H 'Content-Type: application/json' \
+            -d @assets/sample_payload.json | jq .
           docker rm -f svc
       - name: Push image
         run: docker push $IMAGE
