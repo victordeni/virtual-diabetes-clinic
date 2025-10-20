@@ -1,7 +1,10 @@
 from __future__ import annotations
-from typing import Any
+
 import json
+from typing import Any
+
 from joblib import dump, load
+
 
 def save_model(model: Any, meta: dict, path: str) -> None:
     payload = {"model": model, "meta": meta}

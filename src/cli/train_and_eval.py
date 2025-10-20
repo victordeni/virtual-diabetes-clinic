@@ -1,5 +1,5 @@
+from ml_service.config import Paths, TrainConfig
 from ml_service.train import train_and_eval
-from ml_service.config import TrainConfig, Paths
 
 if __name__ == "__main__":
     cfg = TrainConfig()

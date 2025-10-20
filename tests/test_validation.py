@@ -1,5 +1,7 @@
 from fastapi.testclient import TestClient
+
 from app.main import app
+
 client = TestClient(app)
 
 def test_bad_input_returns_json_error():
