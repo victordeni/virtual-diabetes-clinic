@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "virtual-diabetes-clinic"
+version = "0.1.0"
+description = "Virtual diabetes clinic triage ML service"
+requires-python = ">=3.10,<3.13"
+dependencies = []
+
+[tool.ruff]
+line-length = 100
+select = ["E","F","I"]
