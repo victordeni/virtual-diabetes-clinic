@@ -9,11 +9,14 @@ Each week, a virtual clinic receives hundreds of patient check-ins: vitals, lab 
 Manual review is slow and inconsistent.
 This project automates the process by assigning each patient a continuous risk score representing the likelihood of short-term deterioration.
 
-The model uses the open load_diabetes dataset from scikit-learn as a stand-in for anonymized electronic health records (EHR).
+The model uses the open load_diabetes dataset from scikit-learn as a stand-in for deidentified electronic health records (EHR).
 
-Model & Iterations
+# Model & Iterations
 
-# v0.1 — Baseline
+All experiments are deterministic (random_state=42), and model artifacts are stored in /artifacts.
+
+
+## v0.1 — Baseline
 
 Preprocessing: StandardScaler
 
@@ -21,24 +24,35 @@ Model: LinearRegression
 
 RMSE (test): 53.85
 
-# v0.2 — Improvement
+## v0.2 — Improvement
+
+Preprocessing: StandardScaler
 
 Model: Ridge(alpha=1.0)
 
-RMSE (test): 53.78 → –0.14 % improvement
+RMSE (test): 53.78 → –0.13 % improvement
 
 The L2 regularization slightly improves generalization and stabilizes coefficients.
 
-All experiments are deterministic (random_state=42), and model artifacts are stored in /artifacts.
+## discarded experiment
 
- API Endpoints
-GET /health
+Model: Random Forest Regressor
+
+RMSE (test): 54.76 → +0.31 % not an improvement
+
+Because of the worsening of RMSE, this model was discarded and not added as v0.3
+
+# API Endpoints
+
+## GET /health
 
 Quick health check to verify that the service is running.
 
+The call should return the following status:
+
 {"status": "ok", "model_version": "v0.2"}
 
-POST /predict
+## POST /predict
 
 Send a patient feature vector and receive a continuous risk score.
 
@@ -64,8 +78,12 @@ Response:
 
 {"prediction": 235.94, "model_version": "v0.2"}
 
- Run the project
- Locally
+Note: the seed is set, but due to non-deterministic operations, the exact same value for the prediction result may not be reproducible. The request template will return a similar value to the one in the response example and all calls will return the same result in an environment.
+
+ 
+# Run the project
+ 
+## Locally
 git clone https://github.com/victordeni/virtual-diabetes-clinic.git
 cd virtual-diabetes-clinic
 
@@ -74,24 +92,27 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 PYTHONPATH=src python -m src.cli.train_and_eval
-uvicorn app.main:app --port 8000
+PYTHONPATH=src uvicorn app.main:app --port 8000
 
 
-Then test it:
+Then run a health check test to make sure it works:
 
 curl -s http://localhost:8000/health
 
- With Docker
+When rerunning the experiment with a different model config, remember to delete artifacts before rerunning commands, otherwise model will use the old configurations that are already in memory.
+
+
+## With Docker
  
-# Baseline version (LinearRegression)
+### Baseline version (LinearRegression)
 docker pull ghcr.io/victordeni/virtual-diabetes-clinic:v0.1
 docker run -p 8000:8000 ghcr.io/victordeni/virtual-diabetes-clinic:v0.1
 
-# Improved version (Ridge)
+### Improved version (Ridge)
 docker pull ghcr.io/victordeni/virtual-diabetes-clinic:v0.2
 docker run -p 8000:8000 ghcr.io/victordeni/virtual-diabetes-clinic:v0.2
 
- CI/CD Pipeline (GitHub Actions)
+# CI/CD Pipeline (GitHub Actions)
 
 Two GitHub Actions workflows handle automation:
 
@@ -103,10 +124,17 @@ Everything is fully reproducible — same code, same metrics, same Docker image.
 
 # Repository structure
 Path	Description
+
 src/	ML logic: training, model I/O, config, evaluation
+
 app/	FastAPI application
+
 artifacts/	Generated model + metrics
+
 .github/workflows/	CI/CD pipelines
+
 Dockerfile	Multi-stage build (train + runtime)
+
 CHANGELOG.md	Model versions & RMSE evolution
+
 tests/	Unit tests
